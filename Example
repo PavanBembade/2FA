@@ -1,182 +1,181 @@
 <script>
-  import "./App.css";
+  import "./app.css";
+  // State for progress
+  let currentLevel = "Level I";
+  let progress = 40;
 
-  // Constants
-  const PASS_CODE = "123456";
-  const OTP_LENGTH = 6;
-
-  // State variables
-  let otp = Array(OTP_LENGTH).fill("");
-  let wrongOtp = false;
-  let rightOtp = false;
-
-  // Reactive variables
-  $: otpCode = otp.join("");
-  $: hideDiv = otpCode.length === OTP_LENGTH;
-  $: remainingValCount = OTP_LENGTH - otpCode.length;
-
-  // Handle input for each OTP box
-  function handleInput(event, index) {
-    const value = event.target.value;
-
-    if (/^[0-9]$/.test(value)) {
-      otp[index] = value;
-
-      if (index < OTP_LENGTH - 1) {
-        document.getElementById(`otp-input-${index + 1}`).focus();
-      }
-    } else {
-      otp[index] = "";
-    }
-    validateOtp();
-  }
-
-  // Navigate inputs with arrow keys or backspace
-  function handleKeydown(event, index) {
-    const navigate = (nextIndex) => {
-      const nextInput = document.getElementById(`otp-input-${nextIndex}`);
-      if (nextInput) {
-        nextInput.focus();
-      }
-    };
-
-    if (event.key === "Backspace" && index > 0 && !otp[index]) {
-      navigate(index - 1);
-    } else if (
-      event.key === "ArrowRight" ||
-      (event.key === "ArrowUp" && index < OTP_LENGTH - 1)
-    ) {
-      navigate(index + 1);
-    } else if (
-      event.key === "ArrowLeft" ||
-      (event.key === "ArrowDown" && index > 0)
-    ) {
-      navigate(index - 1);
-    }
-  }
-
-  // Automatically select value on focus
-  function handleFocus(event) {
-    event.target.select();
-  }
-
-  // Handle pasting an OTP
-  function handlePaste(event) {
-    const pasteData = event.clipboardData.getData("text").trim();
-
-    if (/^\d+$/.test(pasteData)) {
-      const digits = pasteData.slice(0, OTP_LENGTH).split("");
-
-      // Populate OTP inputs
-      digits.forEach((digit, i) => (otp[i] = digit));
-      otp = [...otp];
-      otpCode = otp.join("");
-      hideDiv = otpCode.length === OTP_LENGTH;
-
-      validateOtp();
-
-      // Focus the first empty input or last input
-      const nextFocusIndex =
-        digits.length < OTP_LENGTH ? digits.length : OTP_LENGTH - 1;
-      document.getElementById(`otp-input-${nextFocusIndex}`).focus();
-    }
-
-    event.preventDefault();
-  }
-
-  // Validate the OTP
-  function validateOtp() {
-    wrongOtp = hideDiv && otpCode !== PASS_CODE;
-    rightOtp = hideDiv && otpCode === PASS_CODE;
-  }
+  // Data for levels
+  const levels = [
+    {
+      title: "Level I",
+      description: "Confidence",
+      active: true,
+      childArray: [
+        { title: "Work DNA Assessment" },
+        { title: "Live Group Session" },
+        { title: "Expert Insights" },
+      ],
+    },
+    { title: "Level II", description: "Language", active: false },
+    { title: "Level III", description: "Personality", active: false },
+    { title: "Level IV", description: "Career Path", active: false },
+    { title: "Level V", description: "Job Ready", active: false },
+  ];
 </script>
 
-<div class="grid grid-cols-12 bg-blue-200 h-screen w-full">
+<div class="w-full flex flex-col gap-[1rem] px-[3rem] py-[2rem]">
+  <div>
+    <h2 class="text-[2rem] font-bold text-gray-900">PrepMe</h2>
+    <p class="text-md font-bold text-gray-500 opacity-50">
+      Boost your self-confidence and prepare to
+      <span class="text-orange-500 font-semibold">ace your interviews.</span>
+    </p>
+  </div>
+
   <div
-    class="col-start-2 col-span-10 lg:col-start-4 lg:col-span-5 xl:col-start-5 xl:col-span-4 flex justify-center items-center w-full relative"
+    class="grid grid-cols-1 md:grid-cols-4 gap-4 p-8 bg-gray-50 border border-4 border-blue-300"
   >
+    <!-- Sidebar -->
     <div
-      class="bg-white p-6 rounded-2xl min-w-[300px] w-[500px] shadow-xl z-10"
+      class="md:col-span-1 border-r border-r-2
+              h- [500px] overflow-auto"
     >
-      <div class="flex flex-col gap-8">
-        <!-- Icon and Heading -->
-        <div class="flex flex-col gap-2 text-center">
-          <div class="flex justify-center">
-            <span
-              class="material-symbols-outlined text-[50px] p-[3rem] rounded-full
-              {wrongOtp
-                ? 'animate-pulse text-red-400 bg-red-400/[0.13]'
-                : 'text-sky-400 bg-blue-400/[0.13]'} 
-              {rightOtp
-                ? 'animate-pulse text-green-400 bg-green-400/[0.13]'
-                : ''}"
-            >
-              {rightOtp ? "lock_open_right" : "lock"}
-            </span>
+      <!-- Levels -->
+      <div class="flex flex-col gap-[2rem]">
+        {#each levels as level, index}
+          <div class="flex justify-start gap-4 relative">
+            <!-- Circle -->
+            <div
+              class={`w-[0.77rem] h-[0.77rem] mt-[0.9rem] rounded-full ${level.active ? "bg-orange-500" : " border border-2 border-gray-400"}`}
+            ></div>
+            <!-- Level Info -->
+            <div class="w-full pr-[2rem]">
+              <h2
+                class="text-xl font-bold {level.active
+                  ? 'text-orange-500'
+                  : 'text-gray-700 opacity-50'}"
+              >
+                {level.title}
+              </h2>
+              <h3
+                class="text-sm font-normal opacity-50 ttext-gray-500 {level.active
+                  ? 'text-orange-500'
+                  : 'text-gray-500 '}"
+              >
+                {level.description}
+              </h3>
+              <div class="mt-[0.5rem]">
+                {#each level.childArray as subpoints, ind}
+                  <div
+                    class="flex items-center rounded-[8px] px-[0.6rem] text-nowrap py-[0.4rem] gap-[1rem] {ind ==
+                    0
+                      ? 'bg-black/[0.10] '
+                      : ''}"
+                  >
+                    <input type="checkbox" checked={ind === 0} />
+                    <h4
+                      class="text-sm font-medium {ind == 0 ? '' : 'opacity-50'}"
+                    >
+                      {subpoints.title}
+                    </h4>
+                  </div>
+                {/each}
+              </div>
+            </div>
+            {#if index+1 !== levels.length }
+            <div class="absolute top-9 left-1 h-full border  border-1"></div>
+            {/if}
+           
           </div>
-          <h3 class="font-semibold text-[2.5rem]">Easy Peasy</h3>
-          <p class="text-md opacity-50">
-            Enter your 6-digit code from your 2FA app
-          </p>
+        {/each}
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="md:col-span-3 space-y-6 h-[500px] overflow-auto">
+      <!-- Progress Bar -->
+      <div>
+        <h3 class="text-lg font-semibold text-gray-900">{currentLevel}</h3>
+        <div class="relative w-full bg-gray-200 h-2 rounded-full mt-4">
+          <div
+            class="absolute top-0 left-0 bg-orange-500 h-2 rounded-full"
+            style="width: {progress}%;"
+          ></div>
+        </div>
+      </div>
+
+      <!-- Personality Assessment -->
+      <div class="p-6">
+        <h4 class="text-lg font-bold text-gray-900">Personality Assessment</h4>
+        <p class="text-sm text-gray-500 mt-2">
+          Understand yourself better to ace interviews with confidence.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          <!-- Core Strengths -->
+          <div class="bg-blue-50 p-4 rounded-md border border-blue-200">
+            <h5 class="text-md font-semibold text-blue-700">Core Strengths</h5>
+            <ul class="list-disc pl-4 text-sm text-gray-600 mt-2 space-y-1">
+              <li>Self-drive</li>
+              <li>Integrity</li>
+              <li>Creativity</li>
+              <li>Teamwork</li>
+            </ul>
+          </div>
+
+          <!-- Growth Assets -->
+          <div class="bg-yellow-50 p-4 rounded-md border border-yellow-200">
+            <h5 class="text-md font-semibold text-yellow-700">Growth Assets</h5>
+            <ul class="list-disc pl-4 text-sm text-gray-600 mt-2 space-y-1">
+              <li>Emotional quotient</li>
+              <li>Leadership</li>
+              <li>Willingness to Learn</li>
+            </ul>
+          </div>
+
+          <!-- Improvement Areas -->
+          <div class="bg-red-50 p-4 rounded-md border border-red-200">
+            <h5 class="text-md font-semibold text-red-700">
+              Improvement Areas
+            </h5>
+            <ul class="list-disc pl-4 text-sm text-gray-600 mt-2 space-y-1">
+              <li>Communication</li>
+              <li>Confidence</li>
+              <li>Customer Orientation</li>
+            </ul>
+          </div>
         </div>
 
-        <!-- OTP Inputs -->
-        <div class="grid grid-cols-6 gap-4">
-          {#each otp as digit, index}
-            <input
-              id={`otp-input-${index}`}
-              class="col-span-1 text-center border text-xl py-[1.7rem] rounded-[0.5rem] focus:outline-none
-              {wrongOtp
-                ? 'shake focus:border-red-500 focus:ring-1 focus:ring-red-500'
-                : 'focus:border-sky-500 focus:ring-1 focus:ring-sky-500'} 
-              {digit
-                ? wrongOtp
-                  ? 'border-red-500 text-red-800 bg-red-200/[0.10]'
-                  : 'border-sky-500 text-sky-600'
-                : ''}"
-              type="text"
-              autocomplete="off"
-              maxlength="1"
-              inputmode="numeric"
-              bind:value={otp[index]}
-              on:input={(event) => handleInput(event, index)}
-              on:keydown={(event) => handleKeydown(event, index)}
-              on:focus={handleFocus}
-              on:paste={handlePaste}
-            />
-          {/each}
-        </div>
+        <button
+          class="bg-transparent text-sm text-gray-800 font-medium py-2 border border-black px-4 rounded-[13px] mt-6"
+        >
+          View Detailed Results
+        </button>
+      </div>
 
-        <!-- Remaining Digits Message -->
-        {#if !hideDiv}
-          <div
-            class="w-full border p-[1rem] bg-gray-200 rounded-[0.5rem] text-center"
-          >
-            <button class="font-bold text-xl opacity-50"
-              >{remainingValCount} digits left</button
-            >
-          </div>
-        {/if}
-
-        <!-- Error Message -->
-        {#if wrongOtp}
-          <div
-            class="w-full border p-[1rem] bg-red-400 text-center rounded-[0.5rem] shake"
-          >
-            <button class="font-bold text-xl text-white">Wrong Code</button>
-          </div>
-        {/if}
-
-        <!-- Success Message -->
-        {#if rightOtp}
-          <div
-            class="w-full button border p-[1rem] text-center rounded-[0.5rem]"
-            style="animation: gradientAnimation 0.3s ease-out forwards; "
-          >
-            <button class="font-bold text-xl text-white">Let's Go</button>
-          </div>
-        {/if}
+      <!-- Live Group Session Card -->
+      <div class=" p-6">
+        <p class="text-sm text-gray-600">
+          Finish your Live Group Session with the counselor within the next
+          <span class="text-orange-500 font-semibold">7 days</span> to move forward!
+        </p>
+        <button
+          class="bg-gray-800 text-white text-sm font-medium py-2 px-4 rounded-md mt-4 hover:bg-gray-900"
+        >
+          Live Group Session
+        </button>
       </div>
     </div>
   </div>
 </div>
+
+<style>
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+
+/* font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; */
+/* font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; */
+
+</style>
